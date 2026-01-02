@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace login_signup.Controllers
+namespace backend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
