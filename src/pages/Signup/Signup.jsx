@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { Col, Row } from "react-bootstrap";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +13,15 @@ const Signup = () => {
   const SignupSchema = Yup.object().shape({
     name: Yup.string()
       .min(2, "Name must be at least 2 characters")
-      .required("Full name is required"),
+      .required("Name is required"),
+
+    lastName: Yup.string()
+      .min(2, "Last name must be at least 2 characters")
+      .required("Last name is required"),
+
+    userName: Yup.string()
+      .min(3, "Username must be at least 3 characters")
+      .required("Username is required"),
 
     email: Yup.string()
       .email("Invalid email address")
@@ -26,7 +35,7 @@ const Signup = () => {
       )
       .required("Password is required"),
 
-    confirmPassword: Yup.string()
+    passwordConfirm: Yup.string()
       .oneOf([Yup.ref("password")], "Passwords do not match")
       .required("Please confirm your password"),
   });
@@ -42,9 +51,25 @@ const Signup = () => {
           <p className="text-center text-muted mb-4">Sign up to get started</p>
 
           <Formik
-            initialValues={{ email: "", password: "", confirmPassword: "" }}
+            initialValues={{
+              name: "",
+              lastName: "",
+              userName: "",
+              email: "",
+              password: "",
+              passwordConfirm: "",
+            }}
             onSubmit={(values) => {
-              console.log(values);
+              const payload = {
+                name: values.name,
+                lastName: values.lastName,
+                userName: values.userName,
+                email: values.email,
+                password: values.password,
+                passwordConfirm: values.passwordConfirm,
+              };
+
+              console.log(payload);
             }}
             validationSchema={SignupSchema}
           >
@@ -57,6 +82,61 @@ const Signup = () => {
               touched,
             }) => (
               <Form onSubmit={handleSubmit}>
+                {/* Name Lastname */}
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="name"
+                        placeholder="First Name"
+                        value={values.name}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={touched.name && !!errors.name}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.name}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Last Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="lastName"
+                        placeholder="Last Name"
+                        value={values.lastName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={touched.lastName && !!errors.lastName}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.lastName}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                {/* User Name */}
+                <Form.Group className="mb-3">
+                  <Form.Label>Username</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="userName"
+                    placeholder="Username"
+                    value={values.userName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    isInvalid={touched.userName && !!errors.userName}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.userName}
+                  </Form.Control.Feedback>
+                </Form.Group>
+
                 {/* Email */}
                 <Form.Group className="mb-3">
                   <Form.Label>Email Address </Form.Label>
@@ -96,17 +176,17 @@ const Signup = () => {
                   <Form.Label>Confirm Password</Form.Label>
                   <Form.Control
                     type={showPassword ? "text" : "password"}
-                    name="confirmPassword"
+                    name="passwordConfirm"
                     placeholder="Confirm Password"
-                    value={values.confirmPassword}
+                    value={values.passwordConfirm}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     isInvalid={
-                      touched.confirmPassword && !!errors.confirmPassword
+                      touched.passwordConfirm && !!errors.passwordConfirm
                     }
                   />
                   <Form.Control.Feedback type="invalid">
-                    {errors.confirmPassword}
+                    {errors.passwordConfirm}
                   </Form.Control.Feedback>
                 </Form.Group>
 
