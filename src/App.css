@@ -1,0 +1,58 @@
+.auth-gradient {
+    background: linear-gradient(135deg,
+            #667eea 0%,
+            #764ba2 50%,
+            #6b8dd6 100%);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(6px);
+}
+
+.auth-card .form-control {
+    border-radius: 6px;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.95rem;
+}
+
+.auth-card .form-control:focus {
+    box-shadow: none;
+    border-color: #667eea;
+}
+
+
+.auth-card .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.25s ease;
+}
+
+.auth-card .btn-primary:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+}
+
+.signup-link,
+.auth-link {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.signup-link:hover,
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+/* ERROR TEXT */
+.invalid-feedback {
+    font-size: 0.8rem;
+}
