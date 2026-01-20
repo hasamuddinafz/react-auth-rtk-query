@@ -3,24 +3,41 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { Formik } from "formik";
-import * as Yup from "yup";
 import { useState } from "react";
+import { useLoginMutation } from "../../services/authService";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import LoginSchema from "../../validations/login.schema";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const [login, { isLoading }] = useLoginMutation();
 
-  const LoginSchema = Yup.object().shape({
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/,
-        "Password must contain uppercase, lowercase, number and special character"
-      )
-      .required("Password is required"),
-  });
+  const handleSubmit = async (values, { resetForm }) => {
+    try {
+      const payload = {
+        userNameOrEmail: values.email,
+        password: values.password,
+      };
+      const response = await login(payload).unwrap();
+
+      const { accessToken, refreshToken, expiration } = response;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("tokenExpiration", expiration);
+
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (err) {
+      if (Array.isArray(err?.data?.errors)) {
+        err.data.errors.forEach((e) => toast.error(e));
+      } else {
+        toast.error(err?.data?.message || "Invalid email or password");
+      }
+    }
+  };
 
   return (
     <Container
@@ -37,19 +54,11 @@ const Login = () => {
           <Formik
             initialValues={{ email: "", password: "" }}
             validationSchema={LoginSchema}
-            onSubmit={(values) => {
-              console.log(values);
-            }}
+            onSubmit={handleSubmit}
           >
-            {({
-              values,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              errors,
-              touched,
-            }) => (
+            {({ handleSubmit, getFieldProps, errors, touched }) => (
               <Form onSubmit={handleSubmit}>
+                {/* EMAIL */}
                 <Form.Group className="mb-3">
                   <Form.Label className="small text-muted" htmlFor="email">
                     Email Address
@@ -58,12 +67,9 @@ const Login = () => {
                   <Form.Control
                     id="email"
                     type="email"
-                    name="email"
                     placeholder="you@example.com"
                     size="lg"
-                    value={values.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
+                    {...getFieldProps("email")}
                     isInvalid={touched.email && !!errors.email}
                   />
 
@@ -72,6 +78,7 @@ const Login = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
+                {/* PASSWORD */}
                 <Form.Group className="mb-4">
                   <Form.Label className="small text-muted" htmlFor="password">
                     Password
@@ -80,12 +87,9 @@ const Login = () => {
                   <Form.Control
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    name="password"
                     placeholder="••••••••"
                     size="lg"
-                    value={values.password}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
+                    {...getFieldProps("password")}
                     isInvalid={touched.password && !!errors.password}
                   />
 
@@ -113,9 +117,11 @@ const Login = () => {
                   variant="primary"
                   size="lg"
                   className="w-100 mb-3"
+                  disabled={isLoading}
                 >
-                  Sign In
+                  {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
+
                 <div className="text-center">
                   <small className="text-muted">
                     Don’t have an account?{" "}

@@ -4,42 +4,44 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { Formik } from "formik";
-import * as Yup from "yup";
 import { Col, Row } from "react-bootstrap";
+import { useCreateUserMutation } from "../../services/userService";
+import { toast } from "react-toastify";
+import SignupSchema from "../../validations/signup.schema";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
 
-  const SignupSchema = Yup.object().shape({
-    name: Yup.string()
-      .min(2, "Name must be at least 2 characters")
-      .required("Name is required"),
+  const [createUser, { isLoading }] = useCreateUserMutation();
 
-    lastName: Yup.string()
-      .min(2, "Last name must be at least 2 characters")
-      .required("Last name is required"),
+  const handleSubmit = async (values, { resetForm }) => {
+    const payload = {
+      name: values.name,
+      lastName: values.lastName,
+      userName: values.userName,
+      email: values.email,
+      password: values.password,
+      passwordConfirm: values.passwordConfirm,
+    };
 
-    userName: Yup.string()
-      .min(3, "Username must be at least 3 characters")
-      .required("Username is required"),
-
-    email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
-
-    password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/,
-        "Password must contain uppercase, lowercase, number and special character"
-      )
-      .required("Password is required"),
-
-    passwordConfirm: Yup.string()
-      .oneOf([Yup.ref("password")], "Passwords do not match")
-      .required("Please confirm your password"),
-  });
-
+    try {
+      await createUser(payload).unwrap();
+      toast.success(
+        "Account created successfully. Please check your email for verification.",
+      );
+      resetForm();
+    } catch (err) {
+      if (Array.isArray(err?.data?.errors)) {
+        err.data.errors.forEach((error) => {
+          toast.error(error);
+        });
+      } else if (err?.data?.message) {
+        toast.error(err.data.message);
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
+  };
   return (
     <Container
       fluid
@@ -59,41 +61,20 @@ const Signup = () => {
               password: "",
               passwordConfirm: "",
             }}
-            onSubmit={(values) => {
-              const payload = {
-                name: values.name,
-                lastName: values.lastName,
-                userName: values.userName,
-                email: values.email,
-                password: values.password,
-                passwordConfirm: values.passwordConfirm,
-              };
-
-              console.log(payload);
-            }}
             validationSchema={SignupSchema}
+            onSubmit={handleSubmit}
           >
-            {({
-              values,
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              errors,
-              touched,
-            }) => (
+            {({ handleSubmit, getFieldProps, errors, touched }) => (
               <Form onSubmit={handleSubmit}>
-                {/* Name Lastname */}
+                {/* Name / Last Name */}
                 <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Name</Form.Label>
                       <Form.Control
                         type="text"
-                        name="name"
                         placeholder="First Name"
-                        value={values.name}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
+                        {...getFieldProps("name")}
                         isInvalid={touched.name && !!errors.name}
                       />
                       <Form.Control.Feedback type="invalid">
@@ -107,11 +88,8 @@ const Signup = () => {
                       <Form.Label>Last Name</Form.Label>
                       <Form.Control
                         type="text"
-                        name="lastName"
                         placeholder="Last Name"
-                        value={values.lastName}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
+                        {...getFieldProps("lastName")}
                         isInvalid={touched.lastName && !!errors.lastName}
                       />
                       <Form.Control.Feedback type="invalid">
@@ -120,16 +98,14 @@ const Signup = () => {
                     </Form.Group>
                   </Col>
                 </Row>
-                {/* User Name */}
+
+                {/* Username */}
                 <Form.Group className="mb-3">
                   <Form.Label>Username</Form.Label>
                   <Form.Control
                     type="text"
-                    name="userName"
                     placeholder="Username"
-                    value={values.userName}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
+                    {...getFieldProps("userName")}
                     isInvalid={touched.userName && !!errors.userName}
                   />
                   <Form.Control.Feedback type="invalid">
@@ -139,14 +115,11 @@ const Signup = () => {
 
                 {/* Email */}
                 <Form.Group className="mb-3">
-                  <Form.Label>Email Address </Form.Label>
+                  <Form.Label>Email Address</Form.Label>
                   <Form.Control
                     type="email"
-                    name="email"
                     placeholder="Email Address"
-                    value={values.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
+                    {...getFieldProps("email")}
                     isInvalid={touched.email && !!errors.email}
                   />
                   <Form.Control.Feedback type="invalid">
@@ -159,11 +132,8 @@ const Signup = () => {
                   <Form.Label>Password</Form.Label>
                   <Form.Control
                     type={showPassword ? "text" : "password"}
-                    name="password"
                     placeholder="Password"
-                    value={values.password}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
+                    {...getFieldProps("password")}
                     isInvalid={touched.password && !!errors.password}
                   />
                   <Form.Control.Feedback type="invalid">
@@ -176,11 +146,8 @@ const Signup = () => {
                   <Form.Label>Confirm Password</Form.Label>
                   <Form.Control
                     type={showPassword ? "text" : "password"}
-                    name="passwordConfirm"
                     placeholder="Confirm Password"
-                    value={values.passwordConfirm}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
+                    {...getFieldProps("passwordConfirm")}
                     isInvalid={
                       touched.passwordConfirm && !!errors.passwordConfirm
                     }
@@ -202,8 +169,9 @@ const Signup = () => {
                   type="submit"
                   size="lg"
                   className="w-100 mb-3 btn-primary"
+                  disabled={isLoading}
                 >
-                  Create Account
+                  {isLoading ? "Creating account..." : "Create Account"}
                 </Button>
 
                 <div className="text-center">
