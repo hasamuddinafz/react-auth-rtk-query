@@ -8,6 +8,7 @@ import VerifyEmail from "./pages/VerifyEmail/VerifyEmail";
 import Dashboard from "./pages/Dahboard/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import ProtectedRoute from "./routes/ProtectedRoute";
 function App() {
   return (
     <Router>
@@ -24,7 +25,14 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 

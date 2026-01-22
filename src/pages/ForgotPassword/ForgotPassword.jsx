@@ -20,7 +20,7 @@ const ForgotPassword = () => {
       }).unwrap();
 
       toast.success(
-        "If the email exists, a reset link has been sent. Please check your inbox.",
+        "Password reset link sent. Please check your inbox (and spam folder).",
       );
 
       resetForm();

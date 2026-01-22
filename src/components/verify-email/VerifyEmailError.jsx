@@ -1,16 +1,7 @@
 import { Card, Button, Form } from "react-bootstrap";
 import { XCircle } from "lucide-react";
 import { Formik } from "formik";
-import * as Yup from "yup";
-
-/* ---------------------------
-   Validation
---------------------------- */
-const ResendEmailSchema = Yup.object({
-  email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
-});
+import { ResendEmailSchema } from "../../validations/resendEmail.schema";
 
 const VerifyEmailError = ({ onResend, isResending, onBackToLogin }) => {
   return (

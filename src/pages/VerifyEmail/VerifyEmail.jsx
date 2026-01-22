@@ -32,7 +32,6 @@ const VerifyEmail = () => {
 
   /* SUCCESS */
   if (verifyResult.isSuccess) {
-    toast.success("Email verified successfully!");
     return <VerifyEmailSuccess onLogin={() => navigate("/login")} />;
   }
 
@@ -41,7 +40,7 @@ const VerifyEmail = () => {
     const errors = verifyResult.error?.data?.errors;
 
     if (Array.isArray(errors)) {
-      errors.forEach((e) => toast.error(e));
+      toast.error(errors);
     } else {
       toast.error("Email verification failed.");
     }

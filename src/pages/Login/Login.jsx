@@ -8,11 +8,15 @@ import { useLoginMutation } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import LoginSchema from "../../validations/login.schema";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../store/authSlice";
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading }] = useLoginMutation();
+
+  const dispatch = useDispatch();
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
@@ -20,15 +24,11 @@ const Login = () => {
         userNameOrEmail: values.email,
         password: values.password,
       };
+
       const response = await login(payload).unwrap();
 
       const { accessToken, refreshToken, expiration } = response;
-
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("tokenExpiration", expiration);
-
-      toast.success("Login successful!");
+      dispatch(setCredentials({ accessToken, refreshToken, expiration }));
       navigate("/dashboard");
     } catch (err) {
       if (Array.isArray(err?.data?.errors)) {
